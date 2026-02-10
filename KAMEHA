@@ -1,276 +1,174 @@
-<!DOCTYPE html>
-<html lang="zh">
+<!doctype html>
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Rent Payment Tracker</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VC Electronics Sdn Bhd · Google Reviews</title>
 
-<style>
-  body { font-family: Arial, sans-serif; background:#f5f6fa; padding:20px; }
-  h1 { margin: 0 0 6px; }
+  <style>
+    :root{
+      --red:#991b1b;
+      --red-dark:#7f1d1d;
+      --bg:#ffffff;
+    }
 
-  .topbar {
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    flex-wrap:wrap;
-    margin-bottom:12px;
-  }
-  .monthPicker {
-    display:flex;
-    align-items:center;
-    gap:8px;
-    background:#fff;
-    padding:10px 12px;
-    border-radius:10px;
-    box-shadow:0 2px 6px rgba(0,0,0,0.08);
-  }
-  select, button {
-    padding:7px 10px;
-    cursor:pointer;
-    border:1px solid #ddd;
-    border-radius:8px;
-    background:#fff;
-  }
-  button.primary { border-color:#bbb; font-weight:600; }
-  button.danger { border-color:#ffb3b3; }
-  button:active { transform: translateY(1px); }
+    body{
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background: var(--bg);
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 0 16px 32px;
+      text-align: center;
+      color:#111;
+    }
 
-  .summary {
-    display:flex;
-    gap:20px;
-    margin:12px 0 22px;
-    flex-wrap:wrap;
-  }
-  .card {
-    background:#fff;
-    padding:15px 20px;
-    border-radius:10px;
-    box-shadow:0 2px 6px rgba(0,0,0,0.08);
-    min-width:220px;
-  }
-  .card h2 { margin:0; font-size:13px; color:#666; font-weight:600; }
-  .card p { margin:8px 0 0; font-size:26px; font-weight:800; }
+    .banner{
+      width:100%;
+      background:#ffffff;
+      padding:26px 0 22px;
+      margin-bottom:22px;
+      border-bottom:3px solid var(--red);
+      border-radius:0 0 18px 18px;
+    }
+    .banner img{
+      max-width:300px;
+      width:90%;
+      height:auto;
+      display:inline-block;
+    }
 
-  table { width:100%; border-collapse: collapse; background:#fff; border-radius:10px; overflow:hidden; }
-  th, td { padding:10px; border-bottom:1px solid #eee; text-align:left; }
-  th { background:#f0f0f0; }
-  tr:last-child td { border-bottom:none; }
+    h1{
+      color: var(--red);
+      margin: 8px 0 6px;
+      font-size:26px;
+    }
 
-  .paid { color:green; font-weight:bold; }
-  .pending { color:orange; font-weight:bold; }
-  .overdue { color:red; font-weight:bold; }
+    p{
+      color:#555;
+      margin: 0 0 18px;
+      font-size:14px;
+    }
 
-  .muted { color:#777; font-size:12px; margin-top:6px; }
-</style>
+    textarea{
+      width:100%;
+      min-height:120px;
+      padding:14px;
+      border-radius:14px;
+      border:1px solid #ddd;
+      font-size:15px;
+      box-sizing:border-box;
+    }
+
+    button{
+      width:100%;
+      padding:16px;
+      margin-top:12px;
+      font-size:16px;
+      border-radius:16px;
+      border:none;
+      cursor:pointer;
+    }
+
+    .primary{
+      background: var(--red);
+      color:#fff;
+    }
+    .primary:hover{
+      background: var(--red-dark);
+    }
+
+    .hint{
+      margin-top:16px;
+      font-size:13px;
+      color:#666;
+      line-height:1.5;
+    }
+  </style>
 </head>
 
 <body>
 
-<h1>🏠 Rent Payment Tracker</h1>
-
-<div class="topbar">
-  <div class="monthPicker">
-    <strong>Year</strong>
-    <select id="yearSelect"></select>
-
-    <strong>Month</strong>
-    <select id="monthSelect"></select>
-
-    <button class="primary" id="todayBtn" title="Jump to current month">This Month</button>
+  <div class="banner">
+    <img src="kameha-logo.jpeg" alt="KAMEHA Logo">
   </div>
 
-  <div class="muted">
-    Tip: Paid data is saved in this browser (localStorage).
+  <h1>VC Electronics Sdn Bhd</h1>
+  <p>View Google Reviews · Copy & Paste Your Review</p>
+
+  <textarea id="reviewText" placeholder="Click “Generate Review”"></textarea>
+
+  <button class="primary" id="btnGen">Generate Review</button>
+  <button class="primary" id="btnGo">Copy & Open Google Reviews</button>
+
+  <div class="hint">
+    On Google Maps, tap ⭐⭐⭐⭐⭐<br>
+    Paste your review and tap Post
   </div>
-</div>
 
-<!-- SUMMARY -->
-<div class="summary">
-  <div class="card">
-    <h2>Total Rent Collected (RM) — Selected Month</h2>
-    <p id="totalIncome">0</p>
-  </div>
-  <div class="card">
-    <h2>Paid Units — Selected Month</h2>
-    <p id="paidCount">0 / 0</p>
-  </div>
-</div>
+  <script>
+    const GOOGLE_MAPS_URL = "https://maps.app.goo.gl/ebuPunTz2Cv2H5jw6";
 
-<table>
-<thead>
-<tr>
-  <th>Unit</th>
-  <th>Rent (RM)</th>
-  <th>Due Day</th>
-  <th>Status</th>
-  <th>Action</th>
-</tr>
-</thead>
-<tbody id="tenantTable"></tbody>
-</table>
+    const reviews = [
+      "Great experience overall. Professional service and very smooth process. Highly recommended!",
+      "Very satisfied with the service. Everything was explained clearly and handled efficiently.",
+      "Excellent service with great attention to detail. The whole experience was pleasant and easy. 5 stars!",
+      "Fast, reliable, and professional. Good workmanship and clear communication throughout.",
+      "Really happy with the overall experience. Friendly staff and solid service quality."
+    ];
 
-<script>
-/** ===== CONFIG ===== */
-const dueDay = 5; // 每月还款日（你可改）
+    const reviewEl = document.getElementById("reviewText");
+    const btnGen = document.getElementById("btnGen");
+    const btnGo  = document.getElementById("btnGo");
 
-const tenants = [
-  { unit:"A-G-2", rent:900 },
-  { unit:"A-1-1", rent:800 },
-  { unit:"A-1-2", rent:800 },
-  { unit:"B-G-4", rent:800 },
-  { unit:"E-G-6", rent:750 },
-  { unit:"E-G-8", rent:800 },
-  { unit:"A-G-7", rent:900 },
-  { unit:"A-1-7", rent:800 },
-  { unit:"A-2-7", rent:600 },
-  { unit:"A-2-8", rent:650 },
-  { unit:"A-4-6", rent:600 },
-  { unit:"A-4-7", rent:600 },
-  { unit:"A-4-8", rent:700 },
-  { unit:"D-G-4", rent:900 },
-  { unit:"UG M3G4", rent:1000 }
-];
-
-/** ===== DATE / MONTH PICKER ===== */
-const now = new Date();
-const currentYear = now.getFullYear();
-const currentMonthIndex = now.getMonth(); // 0-11
-
-const yearSelect = document.getElementById("yearSelect");
-const monthSelect = document.getElementById("monthSelect");
-const todayBtn = document.getElementById("todayBtn");
-
-const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-
-// Years range: current year +/- 2 (你要更长可以改)
-for (let y = currentYear - 2; y <= currentYear + 2; y++) {
-  const opt = document.createElement("option");
-  opt.value = y;
-  opt.textContent = y;
-  yearSelect.appendChild(opt);
-}
-
-monthNames.forEach((m, i) => {
-  const opt = document.createElement("option");
-  opt.value = i;
-  opt.textContent = m;
-  monthSelect.appendChild(opt);
-});
-
-// Load saved selected month (optional)
-const savedYM = JSON.parse(localStorage.getItem("selectedYM") || "null");
-if (savedYM && typeof savedYM.y === "number" && typeof savedYM.m === "number") {
-  yearSelect.value = savedYM.y;
-  monthSelect.value = savedYM.m;
-} else {
-  yearSelect.value = currentYear;
-  monthSelect.value = currentMonthIndex;
-}
-
-todayBtn.addEventListener("click", () => {
-  yearSelect.value = currentYear;
-  monthSelect.value = currentMonthIndex;
-  saveSelectedYM();
-  render();
-});
-
-yearSelect.addEventListener("change", () => { saveSelectedYM(); render(); });
-monthSelect.addEventListener("change", () => { saveSelectedYM(); render(); });
-
-function saveSelectedYM() {
-  localStorage.setItem("selectedYM", JSON.stringify({
-    y: Number(yearSelect.value),
-    m: Number(monthSelect.value)
-  }));
-}
-
-/** ===== STORAGE KEYS ===== */
-function monthKey() {
-  const y = Number(yearSelect.value);
-  const m = Number(monthSelect.value) + 1; // 1-12
-  return `${y}-${String(m).padStart(2, "0")}`; // e.g. 2026-01
-}
-function payKey(unit) {
-  return `paid_${unit}_${monthKey()}`;
-}
-
-/** ===== PAID / UNDO ===== */
-function isPaid(unit) {
-  return localStorage.getItem(payKey(unit)) === "paid";
-}
-function markPaid(unit) {
-  localStorage.setItem(payKey(unit), "paid");
-  render();
-}
-function undoPaid(unit) {
-  localStorage.removeItem(payKey(unit));
-  render();
-}
-
-/** ===== STATUS ===== */
-function getStatus(unit) {
-  // Paid always wins
-  if (isPaid(unit)) return { text:"Paid", cls:"paid" };
-
-  // Overdue/Pending is based on REAL current date, but compared with selected month.
-  // Rules:
-  // - If selected month is BEFORE current month -> if not paid, treat as Overdue
-  // - If selected month is AFTER current month -> if not paid, treat as Pending
-  // - If selected month is current month -> compare day with dueDay
-  const selectedY = Number(yearSelect.value);
-  const selectedM = Number(monthSelect.value); // 0-11
-
-  const isSameMonth = (selectedY === currentYear && selectedM === currentMonthIndex);
-  const isPastMonth = (selectedY < currentYear) || (selectedY === currentYear && selectedM < currentMonthIndex);
-  const isFutureMonth = (selectedY > currentYear) || (selectedY === currentYear && selectedM > currentMonthIndex);
-
-  if (isPastMonth) return { text:"Overdue", cls:"overdue" };
-  if (isFutureMonth) return { text:"Pending", cls:"pending" };
-
-  // Current month
-  if (now.getDate() > dueDay) return { text:"Overdue", cls:"overdue" };
-  return { text:"Pending", cls:"pending" };
-}
-
-/** ===== RENDER ===== */
-function render() {
-  const tbody = document.getElementById("tenantTable");
-  tbody.innerHTML = "";
-
-  let totalIncome = 0;
-  let paidUnits = 0;
-
-  tenants.forEach(t => {
-    const status = getStatus(t.unit);
-
-    if (status.text === "Paid") {
-      totalIncome += t.rent;
-      paidUnits++;
+    function generateReview(){
+      const r = reviews[Math.floor(Math.random() * reviews.length)];
+      reviewEl.value = r;
     }
 
-    const actionHTML = (status.text === "Paid")
-      ? `<button class="danger" onclick="undoPaid('${t.unit.replace(/'/g, "\\'")}')">Undo</button>`
-      : `<button class="primary" onclick="markPaid('${t.unit.replace(/'/g, "\\'")}')">Mark Paid</button>`;
+    async function tryCopy(text){
+      // Modern clipboard
+      try{
+        await navigator.clipboard.writeText(text);
+        return true;
+      }catch(e){
+        // Fallback: select + execCommand
+        try{
+          reviewEl.focus();
+          reviewEl.select();
+          reviewEl.setSelectionRange(0, text.length);
+          const ok = document.execCommand("copy");
+          return ok;
+        }catch(err){
+          return false;
+        }
+      }
+    }
 
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${t.unit}</td>
-      <td>${t.rent}</td>
-      <td>${dueDay}</td>
-      <td class="${status.cls}">${status.text}</td>
-      <td>${actionHTML}</td>
-    `;
-    tbody.appendChild(tr);
-  });
+    btnGen.addEventListener("click", generateReview);
 
-  document.getElementById("totalIncome").innerText = totalIncome.toLocaleString();
-  document.getElementById("paidCount").innerText = `${paidUnits} / ${tenants.length}`;
-}
+    btnGo.addEventListener("click", async () => {
+      const t = reviewEl.value.trim();
+      if(!t){
+        alert("Please generate a review first.");
+        return;
+      }
 
-render();
-</script>
+      // ✅ Open FIRST (sync) to avoid popup blocker
+      const win = window.open(GOOGLE_MAPS_URL, "_blank");
+
+      // Try copy after opening
+      const copied = await tryCopy(t);
+
+      if(!win){
+        alert("Popup blocked. Please allow popups, then tap again.");
+        return;
+      }
+
+      if(!copied){
+        alert("Copy failed on this device. Please manually copy the text, then paste on Google Maps.");
+      }
+    });
+  </script>
 
 </body>
 </html>
