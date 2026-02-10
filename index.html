@@ -22,6 +22,7 @@
       color:#111;
     }
 
+    /* Logo Banner */
     .banner{
       width:100%;
       background:#ffffff;
@@ -88,6 +89,7 @@
 
 <body>
 
+  <!-- KAMEHA Logo -->
   <div class="banner">
     <img src="kameha-logo.jpeg" alt="KAMEHA Logo">
   </div>
@@ -109,11 +111,56 @@
     const GOOGLE_MAPS_URL = "https://maps.app.goo.gl/ebuPunTz2Cv2H5jw6";
 
     const reviews = [
-      "Great experience overall. Professional service and very smooth process. Highly recommended!",
-      "Very satisfied with the service. Everything was explained clearly and handled efficiently.",
-      "Excellent service with great attention to detail. The whole experience was pleasant and easy. 5 stars!",
-      "Fast, reliable, and professional. Good workmanship and clear communication throughout.",
-      "Really happy with the overall experience. Friendly staff and solid service quality."
+      "Professional and reliable AV service.",
+      "Good technical support for AV systems.",
+      "Very satisfied with the AV setup.",
+      "Clear explanation and professional service.",
+      "AV system works well and stable.",
+      "Good experience with their technical team.",
+      "Professional handling of AV equipment.",
+      "Reliable service and good support.",
+      "System works as expected. Happy with it.",
+      "Good knowledge in audio visual solutions.",
+      "Smooth setup and clear explanation.",
+      "Professional AV integration service.",
+      "Satisfied with the overall AV solution.",
+      "Good service and neat installation.",
+      "Helpful and knowledgeable team.",
+      "Good experience dealing with their AV technical team. Communication was clear and professional.",
+      "The AV system was installed properly and tested before handover.",
+      "Satisfied with the service. The audio visual setup is stable and reliable.",
+      "Clear explanation on how the AV controller and system work.",
+      "Professional service with good attention to technical details.",
+      "The team handled our AV equipment carefully and neatly.",
+      "Good support throughout the AV setup process.",
+      "The installation was done professionally and on schedule.",
+      "Helpful advice on choosing the right AV products for our setup.",
+      "The AV system configuration was done smoothly without issues.",
+      "Professional handling of cables and signal distribution.",
+      "The team provided good technical guidance for our AV system.",
+      "Overall a smooth experience from consultation to installation.",
+      "AV setup was neat, clean, and well tested.",
+      "Good technical knowledge and responsive support.",
+      "The system performance has been stable so far.",
+      "Clear communication and proper system testing.",
+      "Professional service for audio visual integration.",
+      "Good experience working with a knowledgeable AV team.",
+      "Satisfied with the AV controller and signal setup.",
+      "Very professional service for our audio visual setup. The team explained the extender and signal flow clearly and ensured everything worked smoothly.",
+      "Good experience dealing with AV equipment such as matrix switchers and controllers. The setup was neat and properly tested.",
+      "The team has strong technical knowledge in audio visual systems. Our extender and controller were configured correctly.",
+      "Professional handling of AV cables and signal routing. Everything was tested before handover.",
+      "Very satisfied with the service. They understand professional audio visual workflows and system integration.",
+      "Good support for AV system integration. The matrix and extender setup was stable and reliable.",
+      "Clear explanation on how the AV controller, matrix, and signal distribution work.",
+      "Smooth experience from consultation to installation. Audio visual system works well.",
+      "The team demonstrated good understanding of professional AV requirements and system design.",
+      "Reliable support for audio visual integration with proper signal testing.",
+      "They provided helpful advice on AV cables, extenders, and controllers for our setup.",
+      "Professional AV setup with neat cable management and stable signal output.",
+      "Efficient service with good attention to technical details during AV installation.",
+      "The AV system was configured properly and tested thoroughly before completion.",
+      "Overall a professional and reliable audio visual installation experience."
     ];
 
     const reviewEl = document.getElementById("reviewText");
@@ -126,18 +173,15 @@
     }
 
     async function tryCopy(text){
-      // Modern clipboard
       try{
         await navigator.clipboard.writeText(text);
         return true;
       }catch(e){
-        // Fallback: select + execCommand
         try{
           reviewEl.focus();
           reviewEl.select();
           reviewEl.setSelectionRange(0, text.length);
-          const ok = document.execCommand("copy");
-          return ok;
+          return document.execCommand("copy");
         }catch(err){
           return false;
         }
@@ -153,19 +197,18 @@
         return;
       }
 
-      // ✅ Open FIRST (sync) to avoid popup blocker
+      // Open first to avoid popup block
       const win = window.open(GOOGLE_MAPS_URL, "_blank");
 
-      // Try copy after opening
       const copied = await tryCopy(t);
 
       if(!win){
-        alert("Popup blocked. Please allow popups, then tap again.");
+        alert("Popup blocked. Please allow popups and tap again.");
         return;
       }
 
       if(!copied){
-        alert("Copy failed on this device. Please manually copy the text, then paste on Google Maps.");
+        alert("Copy failed on this device. Please manually copy the text.");
       }
     });
   </script>
